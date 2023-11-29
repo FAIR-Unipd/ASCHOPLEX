@@ -1,0 +1,15 @@
+network:
+  _target_: UNETR
+  feature_size: 16
+  img_size: 128
+  in_channels: $@input_channels
+  out_channels: '@output_classes'
+  # spatial_dims: 3
+  hidden_size: 768
+  mlp_dim: 3072
+  num_heads: 12
+  pos_embed: "perceptron"
+  norm_name: "instance"
+  res_block: True
+  dropout_rate: 0.0
+  # use_checkpoint: True
