@@ -28,12 +28,13 @@ Due to the data-driven nature of ASCHOPLEX, results confirmed the addiction of a
 
 ASCHOPLEX has been structured as a Python tool with selected mandatory and optional input parsers.
 
-    launching_tool.py --dataroot {path} --work_dir {path} --finetuning {flag} --prediction {flag} --{Optional Parser}
+    launching_tool.py --dataroot {path} --toolbox_dir{path} --work_dir {path} --finetuning {flag} --prediction {flag} --{Optional Parser}
 
 Mandatory Inputs:
 
     --dataroot: data directory
-    --work_dir: directory where the tool has been downloaded
+    --toolbox_dir: directory where the tool has been downloaded
+    --work_dir: working directory
     --finetuning: yes/no, finetuning flag
     --prediction: yes/no/ft, prediction flag
 
@@ -47,30 +48,30 @@ You can selected one of these combinations:
 
     - Direct Inference: not recommended instead of data match that used for the training of ASCHOPLEX (Dataset 1, Dataset 2). The output segmentation is the ensemble by major voting of the predictions obtained by the best five selected models (trained on Dataset 1 and Dataset 2).
 
-            launching_tool.py --dataroot {path} --work_dir {path} --finetuning no --prediction yes
+            launching_tool.py --dataroot {path} --toolbox_dir{path} --work_dir {path} --finetuning no --prediction yes
 
     - Finetuning & Prediction: recommended modality. After the finetuning of ASCHOPLEX on 10 manually segmented subjects (5 for training and 5 for validation), the ensemble by major voting is performed using the five finetuned models.
 
-            launching_tool.py --dataroot {path} --work_dir {path} --finetuning yes --prediction yes
+            launching_tool.py --dataroot {path} --toolbox_dir{path} --work_dir {path} --finetuning yes --prediction yes
 
     - Only Finetuning: recommended modality. The finetuning of ASCHOPLEX on 10 manually segmented subjects (5 for training and 5 for validation) has been performed without obtaining the ensemble prediction.
 
-            launching_tool.py --dataroot {path} --work_dir {path} --finetuning yes --prediction no
+            launching_tool.py --dataroot {path} --toolbox_dir{path} --work_dir {path} --finetuning yes --prediction no
 
     - Prediction after Finetuning: recommended modality for prediction when new data, with same characteristics of the previous ones, are available. The output segmentation is the ensemble by major voting performed using the predictions derived by the five previously finetuned models.
 
-            launching_tool.py --dataroot {path} --work_dir {path} --finetuning no --prediction ft
+            launching_tool.py --dataroot {path} --toolbox_dir{path} --work_dir {path} --finetuning no --prediction ft
 
 ## ASCHOPLEX tool steps
 
 ASCHOPLEX pipeline automatically run the following steps basing on --finetuning and --prediction flags:
 
-1. Writing JSON file: A JSON file of the input data will always be written. The JSON file will be saved in {working_dir}/JSON_file folder.
+1. Writing JSON file: A JSON file of the input data will always be written. The JSON file will be saved in {work_dir}/JSON_file folder.
 Based on --finetuning and --prediction flags, different files will be created:
 
-        - {working_dir}/JSON_file/dataset_prediction.json for Direct Inference or Prediction after Finetuning
-        - {working_dir}/JSON_file/dataset_finetuning_prediction.json for Finetuning & prediction
-        - {working_dir}/JSON_file/dataset_finetuning.json for Only Finetuning 
+        - {work_dir}/JSON_file/dataset_prediction.json for Direct Inference or Prediction after Finetuning
+        - {work_dir}/JSON_file/dataset_finetuning_prediction.json for Finetuning & prediction
+        - {work_dir}/JSON_file/dataset_finetuning.json for Only Finetuning 
 
 2. (Optional) Finetuning on input dataset: If --finetuning yes, run the finetuning step. It returns the models and the folder path where models have been saved.
 
