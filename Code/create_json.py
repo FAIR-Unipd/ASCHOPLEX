@@ -1,12 +1,12 @@
 import os
 import json
+import math
 from collections import OrderedDict
 
 join = os.path.join
 
 class WriteJSON:
-    # Writing .json files to run finetuning and/or the preidction of Choroid Plexus segmentations
-    # Based on the parser flag you set, it will create different combinations of 
+    # Writing .json files to run finetuning and/or the prediction of Choroid Plexus segmentations
 
     # initialization
     def __init__(self, dataroot: str=".", description=None, work_dir: str=".", finetune: str=".", prediction: str="."):
@@ -38,11 +38,6 @@ class WriteJSON:
             train_id=False
             test_id=True
             name_json="dataset_prediction.json"
-            
-        # elif self.Finetune=='no' and self.Prediction=='ft':
-        #     train_id=False
-        #     test_id=True
-        #     name_json="dataset_prediction_post_finetuning.json"
 
         else: 
             # self.Finetune=='yes' & self.Prediction=='no'
@@ -62,35 +57,53 @@ class WriteJSON:
             filenames_image = os.listdir(train_dir)
             filenames_image.sort()
             filenames_label = os.listdir(label_dir)
-            filenames_label.sort()           
+            filenames_label.sort()   
+
+            if len(filenames_image)!=len(filenames_label):
+                raise ValueError("The number of images and the number of labels is different. Please, check image_Tr and label_Tr folders.")
 
             # training
+            jj=math.ceil(len(filenames_image)/2)
 
-            for name in filenames_image[0:5]:
+            for name in filenames_image[0:jj]:
                 if not(name.endswith('.nii') | name.endswith('.nii.gz')):
                     raise ValueError("Data are not in the correct format. Please, provide images in .nii or .nii.gz Nifti format")
                 image=join(train_dir, name)
                 train_ids.append(image)
             
-            for name in filenames_label[0:5]:
+            count=0
+            for name in filenames_label[0:jj]:
                 if not(name.endswith('.nii') | name.endswith('.nii.gz')):
                     raise ValueError("Data are not in the correct format. Please, provide images in .nii or .nii.gz Nifti format")
-                label=join(label_dir, name)
-                label_train_ids.append(label)
+                img_=os.path.basename(filenames_image[count]).replace('_image', '')
+                lab_=os.path.basename(name).replace('_seg', '')
+                if img_==lab_:
+                    label=join(label_dir, name)
+                    label_train_ids.append(label)
+                    count+=1
+                else:
+                    raise ValueError("Subject identifier is not univoque. Please, pass correct data")
             
             # validation
 
-            for name in filenames_image[5:10]:
+            for name in filenames_image[jj:len(filenames_image)]:
                 if not(name.endswith('.nii') | name.endswith('.nii.gz')):
                     raise ValueError("Data are not in the correct format. Please, provide images in .nii or .nii.gz Nifti format")
                 image=join(train_dir, name)
                 validation_ids.append(image)
-            
-            for name in filenames_label[5:10]:
+            count=jj
+            for name in filenames_label[jj:len(filenames_image)]:
                 if not(name.endswith('.nii') | name.endswith('.nii.gz')):
                     raise ValueError("Data are not in the correct format. Please, provide images in .nii or .nii.gz Nifti format")
-                label=join(label_dir, name)
-                label_valid_ids.append(label)
+                img_=os.path.basename(filenames_image[count]).replace('_image', '')
+                lab_=os.path.basename(name).replace('_seg', '')
+                if img_==lab_:
+                    label=join(label_dir, name)
+                    label_valid_ids.append(label)
+                    count+=1
+                else:
+                    raise ValueError("Subject identifier is not univoque. Please, pass correct data")
+
 
         if test_id:
             #  testing
