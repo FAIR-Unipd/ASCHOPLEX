@@ -29,21 +29,37 @@ class WriteJSON:
         if not os.path.isdir(output_folder):
             os.makedirs(output_folder)
 
-        if self.Finetune=='yes'and self.Prediction=='yes':
+        if self.Finetune=='yes':
+        
             train_id=True
-            test_id=True
-            name_json="dataset_finetuning_prediction.json"
 
-        elif (self.Finetune=='no' and self.Prediction=='yes') or (self.Finetune=='no' and self.Prediction=='ft'):
-            train_id=False
-            test_id=True
-            name_json="dataset_prediction.json"
+            if self.Prediction=='yes':
 
-        else: 
-            # self.Finetune=='yes' & self.Prediction=='no'
-            train_id=True
-            test_id=False
+                test_id=True
+                test_ft=False
+
+            else: 
+                # self.Prediction=='no'
+                test_id=False
+                test_ft=False
+                
             name_json="dataset_finetuning.json"
+
+        else:
+
+            train_id=False
+
+            if self.Prediction=='yes':
+                
+                test_id=True
+                test_ft=False
+                name_json="dataset_prediction.json"
+
+            else:
+                # self.Prediction=='ft'
+                test_id=False
+                test_ft=True
+                name_json="dataset_finetuning.json"
 
 
         if train_id:
@@ -105,7 +121,7 @@ class WriteJSON:
                     raise ValueError("Subject identifier is not univoque. Please, pass correct data")
 
 
-        if test_id:
+        if test_id or test_ft:
             #  testing
             
             test_dir=join(self.Dataroot, 'image_Ts')
@@ -120,44 +136,60 @@ class WriteJSON:
                 test_ids.append(image)
 
 
-        # manually set
-        json_dict = OrderedDict()
-        json_dict['name'] = "MRI Dataset - Choroid Plexus Segmentation" 
-        json_dict['description'] = self.Description
-        json_dict['tensorImageSize'] = "3D"
-        json_dict['modality'] = {
-            "0": "MR"
-        }
-        # manually set
-        json_dict['labels'] = {
-            "0": "background",
-            "1": "Choroid Plexus"
-        }
+        if (train_id and test_id) or (not(train_id) and test_id) or (train_id and not(test_id)):
 
-        if train_id and test_id:
+            # create json file - manually set
 
-            json_dict['numTraining'] = len(train_ids)
-            json_dict['numValidation'] = len(validation_ids)
-            json_dict['numTest'] = len(test_ids)
-            json_dict['training'] = [{"fold": 0, "image": '%s' %i , "label": '%s' %j} for j, i in zip(label_train_ids, train_ids)]
-            json_dict['validation'] = [{"image": '%s' %i, "label": '%s' %j} for j,i in zip(label_valid_ids, validation_ids)]
-            json_dict['testing'] = [{"image": '%s' %i} for i in test_ids]
+            json_dict = OrderedDict()
+            json_dict['name'] = "MRI Dataset - Choroid Plexus Segmentation" 
+            json_dict['description'] = self.Description
+            json_dict['tensorImageSize'] = "3D"
+            json_dict['modality'] = {
+                "0": "MR"
+            }
+            
+            json_dict['labels'] = {
+                "0": "background",
+                "1": "Choroid Plexus"
 
-        elif not(train_id) and test_id: 
+            }
 
-            json_dict['numTest'] = len(test_ids)
-            json_dict['testing'] = [{"image": '%s' % i} for i in test_ids]
+            if train_id and test_id:
 
-        else:
+                json_dict['numTraining'] = len(train_ids)
+                json_dict['numValidation'] = len(validation_ids)
+                json_dict['numTest'] = len(test_ids)
+                json_dict['training'] = [{"fold": 0, "image": '%s' %i , "label": '%s' %j} for j, i in zip(label_train_ids, train_ids)]
+                json_dict['validation'] = [{"image": '%s' %i, "label": '%s' %j} for j,i in zip(label_valid_ids, validation_ids)]
+                json_dict['testing'] = [{"image": '%s' %i} for i in test_ids]
 
-            # train_id and not(test_id)
-            json_dict['numTraining'] = len(train_ids)
-            json_dict['numValidation'] = len(validation_ids)
-            json_dict['training'] = [{"fold": 0, "image": '%s' %i , "label": '%s' %j} for j, i in zip(label_train_ids, train_ids)]
-            json_dict['validation'] = [{"image": '%s' %i, "label": '%s' %j} for j,i in zip(label_valid_ids, validation_ids)]
+            elif not(train_id) and test_id: 
 
-        with open(join(output_folder, name_json), 'w') as f:
-            json.dump(json_dict, f, indent=4, sort_keys=True)
+                json_dict['numTest'] = len(test_ids)
+                json_dict['testing'] = [{"image": '%s' % i} for i in test_ids]
+
+            elif train_id and not(test_id):
+
+                json_dict['numTraining'] = len(train_ids)
+                json_dict['numValidation'] = len(validation_ids)
+                json_dict['training'] = [{"fold": 0, "image": '%s' %i , "label": '%s' %j} for j, i in zip(label_train_ids, train_ids)]
+                json_dict['validation'] = [{"image": '%s' %i, "label": '%s' %j} for j,i in zip(label_valid_ids, validation_ids)]
+
+            with open(join(output_folder, name_json), 'w') as f:
+                json.dump(json_dict, f, indent=4, sort_keys=True)
+        
+        elif test_ft:
+
+            # append lines to the .json files
+            with open(join(output_folder, name_json)) as f:
+                json_append=json.load(f)
+
+            json_append['numTest']=len(test_ids)
+
+            json_append['testing'] = [{"image": '%s' % i} for i in test_ids]
+
+            with open(join(output_folder, name_json), 'w') as f:
+                json.dump(json_append, f, indent=4, sort_keys=True)
 
         self.File.append(join(output_folder, name_json))
 

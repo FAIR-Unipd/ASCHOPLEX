@@ -41,6 +41,7 @@ if __name__ == '__main__':
         raise ValueError("You are doing nothing with this parser combination. Please, decide if you wanna run the finetuning, only the prediction, or both")
     
     print('---------------ASCHOPLEX PIPELINE IS STARTING----------------')
+    
     print('Writing JSON file.....')
     # json_file=WriteJSON(args.dataroot, args.description, args.work_dir, args.finetune, args.prediction).write_json_file()
     json_file=WriteJSON(args.dataroot, args.description, args.work_dir, args.finetune, args.prediction).write_json_file()

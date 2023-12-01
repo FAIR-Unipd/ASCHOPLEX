@@ -3,9 +3,11 @@ import nibabel as nb
 import numpy as np
 import torch
 from tqdm import tqdm
+from copy import deepcopy
 from monai.apps.utils import get_logger
-from typing import Any
+from typing import Any, Dict, Optional
 from monai.config import print_config
+from monai.bundle.config_parser import ConfigParser
 from monai.data import CacheDataset, DataLoader, load_decathlon_datalist, decollate_batch
 from monai.inferers import sliding_window_inference
 from monai.networks.nets import UNETR, DynUNet
@@ -23,37 +25,15 @@ from monai.transforms import (
     CopyItemsd,
 )
 from monai.utils.enums import AlgoEnsembleKeys
-from monai.transforms import SaveImage
-from monai.auto3dseg.utils import algo_to_pickle, concat_val_to_np
-from monai.apps.auto3dseg.utils import export_bundle_algo_history, import_bundle_algo_history
 from monai.utils import set_determinism
-
-
-
-import os
-import argparse
-import numpy as np
-import shutil
-import sys
-from copy import deepcopy
-from typing import Any, Dict, List, Optional
-
+from monai.transforms import SaveImage
+from monai.auto3dseg.utils import concat_val_to_np
+from monai.apps.auto3dseg.utils import import_bundle_algo_history
 from monai.apps.auto3dseg import (
     AlgoEnsembleBuilder,
-    DataAnalyzer,
     AlgoEnsemble,
 )
 
-from monai.bundle.config_parser import ConfigParser
-from monai.utils.enums import AlgoEnsembleKeys
-from monai.apps.utils import get_logger
-from monai.config import print_config
-from monai.auto3dseg.algo_gen import AlgoGen
-from monai.apps.auto3dseg.bundle_gen import BundleAlgo
-from monai.transforms import SaveImage
-from monai.auto3dseg.utils import algo_to_pickle, concat_val_to_np
-from monai.apps.auto3dseg.utils import export_bundle_algo_history, import_bundle_algo_history
-from monai.utils import ensure_tuple
 
 print_config()
 
@@ -107,7 +87,7 @@ def set_image_save_transform(output_dir, kwargs):
 
 class Predict_Directly:
 
-    # Code to directly predict the Choroid Plexus segmentations without running a finetuning step
+    # Directly predict the Choroid Plexus segmentations without running a finetuning step
     
     # initialization
     def __init__(self, work_dir: str = ".", json_file: str = ".", output_dir=None):
@@ -385,7 +365,7 @@ class MyAlgoEnsembleBestN(AlgoEnsemble):
 
 
 class Predict_Finetuning:
-    # Code to predict the Choroid Plexus segmentations after run a finetuning step
+    # Code to predict the Choroid Plexus segmentations taking finetuned models
 
      # initialization
     def __init__(self, work_dir: str=".", dataroot: str = ".", json_file: str = ".", output_dir=None, finetuning_dir=None):

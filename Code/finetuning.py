@@ -1,30 +1,16 @@
-# GENERAL CODE FOR THE TRAINING WITH 1 FOLD ALL MODELS
-# FINETUNING WITH N SUBJECTS
-# DICE SCORE TO SAVE THE BEST MODEL
-
 import os
-import argparse
-import numpy as np
 import shutil
 import sys
 from copy import deepcopy
-from typing import Any, Dict, List, Optional
-
-from monai.apps.auto3dseg import (
-    AlgoEnsembleBuilder,
-    DataAnalyzer,
-    AlgoEnsemble,
-)
-
-from monai.bundle.config_parser import ConfigParser
-from monai.utils.enums import AlgoEnsembleKeys
+from typing import Any, Dict, List
 from monai.apps.utils import get_logger
-from monai.config import print_config
-from monai.auto3dseg.algo_gen import AlgoGen
+from monai.apps.auto3dseg import DataAnalyzer
 from monai.apps.auto3dseg.bundle_gen import BundleAlgo
-from monai.transforms import SaveImage
-from monai.auto3dseg.utils import algo_to_pickle, concat_val_to_np
-from monai.apps.auto3dseg.utils import export_bundle_algo_history, import_bundle_algo_history
+from monai.apps.auto3dseg.utils import export_bundle_algo_history
+from monai.auto3dseg.algo_gen import AlgoGen
+from monai.auto3dseg.utils import algo_to_pickle
+from monai.bundle.config_parser import ConfigParser
+from monai.config import print_config
 from monai.utils import ensure_tuple
 
 print_config()

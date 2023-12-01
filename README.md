@@ -68,9 +68,8 @@ ASCHOPLEX pipeline automatically run the following steps basing on --finetuning 
 1. Writing JSON file: A JSON file of the input data will always be written. The JSON file will be saved in {work_dir}/JSON_file folder.
 Based on --finetuning and --prediction flags, different files will be created:
 
-        - {work_dir}/JSON_file/dataset_prediction.json for Direct Inference or Prediction after Finetuning
-        - {work_dir}/JSON_file/dataset_finetuning_prediction.json for Finetuning & prediction
-        - {work_dir}/JSON_file/dataset_finetuning.json for Only Finetuning 
+        - {work_dir}/JSON_file/dataset_prediction.json for Direct Inference
+        - {work_dir}/JSON_file/dataset_finetuning.json for Only Finetuning, Finetuning & prediction, Prediction after Finetuning
 
 2. (Optional) Finetuning on input dataset: If --finetuning yes, run the finetuning step. It returns the models and the folder path where models have been saved.
 
@@ -79,7 +78,8 @@ Based on --finetuning and --prediction flags, different files will be created:
 ## Input Data: Structure and Characteristics
 
 Data must be in Nifti format (.nii, .nii.gz).
-Data must be untouched: no preprocessing (e.g. brain extraction, intensity correction) is needed. Images should not be flipped.
+Data must be untouched: no preprocessing (e.g. brain extraction, intensity correction) is needed.
+
 Input data must be structured as follows:
 
     DATASET
